@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projeto: Inteligência Artificial</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    header {
+      background: linear-gradient(to right, #2c3e50, #4ca1af);
+      color: white;
+      padding: 0;
+    }
+    .carousel-inner img {
+      height: 400px;
+      object-fit: cover;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+    .section-title {
+      margin: 50px 0 30px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    /* Galeria estilo cards (Neon Azul) */
+    .gallery-card {
+      cursor: pointer;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      overflow: hidden;
+      background: white;
+      border: 2px solid transparent; /* Borda transparente inicial */
+    }
+    .gallery-card:hover {
+      transform: scale(1.05);
+      /* Borda neon azul com brilho */
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 25px rgba(0, 255, 255, 0.5), 0 0 35px rgba(0, 255, 255, 0.3);
+      border-color: rgba(0, 255, 255, 0.8); /* Cor da borda neon azul */
+    }
+    .gallery-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-title {
+      padding: 10px;
+      font-weight: 600;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    /* Estilo para Cards da Equipe (Neon Rosa) */
+    .team-card {
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      overflow: hidden;
+      background: white;
+      border: 2px solid transparent; /* Borda transparente inicial */
+    }
+    .team-card:hover {
+      transform: scale(1.05);
+      /* Borda neon rosa com brilho */
+      box-shadow: 0 0 15px rgba(255, 0, 255, 0.7), 0 0 25px rgba(255, 0, 255, 0.5), 0 0 35px rgba(255, 0, 255, 0.3);
+      border-color: rgba(255, 0, 255, 0.8); /* Cor da borda neon rosa */
+    }
+    .team-card .card-img-top {
+      height: 200px; /* Ajuste a altura das imagens da equipe se necessário */
+      object-fit: cover;
+    }
+
+    /* Modal */
+    .modal-header {
+      background: #4ca1af;
+      color: white;
+    }
+    /* Gráfico */
+    #graficoIA {
+      max-width: 600px;
+      margin: 30px auto 60px;
+      display: block;
+    }
+    /* Chatbot flutuante */
+    #chatbot-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #4ca1af;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    #chatbot-container {
+      display: none;
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      max-height: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 1001;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #chatbot-header {
+      background: #4ca1af;
+      color: white;
+      padding: 10px 15px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #chatbot-header button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    #chat {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #f8f9fa;
+    }
+    #chat-footer {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    #chat-footer input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      outline: none;
+    }
+    #chat-footer button {
+      background: #4ca1af;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+    /* Balões de chat */
+    .message {
+      padding: 8px 12px;
+      margin: 6px 0;
+      border-radius: 20px;
+      max-width: 75%;
+      clear: both;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .message.user {
+      background-color: #4ca1af;
+      color: white;
+      float: right;
+      text-align: right;
+    }
+    .message.bot {
+      background-color: #e2e2e2;
+      color: #333;
+      float: left;
+      text-align: left;
+    }
+    /* Estilo do Rodapé */
+    footer {
+      background-color: #f8bbd0; /* Rosa claro */
+      color: #4a148c; /* Roxo escuro */
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 60px; /* Espaçamento do conteúdo acima */
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img class="d-block w-100" src="bia1.jpeg" alt="Bia Slide 1">
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100" src="bia2.jpeg" alt="Bia Slide 2">
+      </div>
+    </div>
+    
+    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Anterior</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Próximo</span>
+    </a>
+  </div>
+</header>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="#">Projeto IA</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="#galeria">Galeria</a></li>
+        <li class="nav-item"><a class="nav-link" href="#equipe">Equipe</a></li>
+        <li class="nav-item"><a class="nav-link" href="#grafico">Gráfico</a></li>
+        <li class="nav-item"><a class="nav-link" href="#chatbot">Chatbot</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0 ml-3">
+        <input class="form-control mr-sm-2" type="search" placeholder="Pesquisar..." aria-label="Pesquisar" />
+      </form>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <section id="galeria">
+    <h2 class="section-title text-center">Projeto Inteligência Artificial </h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="IA" data-text="Inteligência Artificial: desenvolvimento de sistemas que simulam inteligência humana.">
+          <img src="ia1.jpeg" alt="IA" class="gallery-img" />
+          <div class="gallery-title">IA</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="IoT" data-text="Internet das Coisas: conexão de dispositivos à internet para automação e monitoramento.">
+          <img src="ia2.jpeg" alt="IoT" class="gallery-img" />
+          <div class="gallery-title">IoT</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Blockchain" data-text="Tecnologia para registros seguros e descentralizados de informações.">
+          <img src="ia3.jpeg" alt="Blockchain" class="gallery-img" />
+          <div class="gallery-title">Blockchain</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Computação Quântica" data-text="Uso de qubits para processamento computacional exponencialmente mais rápido.">
+          <img src="ia4.jpeg" alt="Computação Quântica" class="gallery-img" />
+          <div class="gallery-title">Computação Quântica</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Energias Renováveis" data-text="Fontes de energia limpas e renováveis como solar, eólica e biomassa.">
+          <img src="ia5.jpeg" alt="Energias Renováveis" class="gallery-img" />
+          <div class="gallery-title">Energias Renováveis</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Nanotecnologia" data-text="Manipulação da matéria em escala nanométrica para novas aplicações.">
+          <img src="ia6.jpeg" alt="Nanotecnologia" class="gallery-img" />
+          <div class="gallery-title">Nanotecnologia</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Biologia Sintética" data-text="Criação de sistemas biológicos artificiais para diversas aplicações.">
+          <img src="ia7.jpeg" alt="Biologia Sintética" class="gallery-img" />
+          <div class="gallery-title">Biologia Sintética</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Veículos Autónomos" data-text="Carros e drones que se dirigem sozinhos usando sensores e IA.">
+          <img src="ia8.jpeg" alt="Veículos Autónomos" class="gallery-img" />
+          <div class="gallery-title">Veículos Autónomos</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="gallery-card" data-toggle="modal" data-target="#modalIA" data-title="Ferramentas AI" data-text="Softwares e plataformas que facilitam o desenvolvimento de IA.">
+          <img src="ia9.jpeg" alt="Ferramentas AI" class="gallery-img" />
+          <div class="gallery-title">Ferramentas AI</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal fade" id="modalIA" tabindex="-1" aria-labelledby="modalIATitulo" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalIATitulo">Título</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalIATexto">
+          Descrição...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="grafico">
+    <h2 class="section-title text-center">Investimento em Inteligência Artificial (2015-2024)</h2>
+    <canvas id="graficoIA"></canvas>
+  </section>
+
+</main>
+<section id="equipe" class="mt-5">
+  <h2 class="section-title text-center">Nossa Equipe</h2>
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4 team-card"> <img src="t1.jpg" class="card-img-top" alt="Ana Silva"> <div class="card-body">
+          <h5 class="card-title">Ana Silva</h5>
+          <p class="card-text">Cientista de Dados</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4 team-card"> <img src="t2.jpg" class="card-img-top" alt="João Pereira"> <div class="card-body">
+          <h5 class="card-title">João Pereira</h5>
+          <p class="card-text">Engenheiro de IA</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4 team-card"> <img src="t3.jpg" class="card-img-top" alt="Carla Souza"> <div class="card-body">
+          <h5 class="card-title">Carla Souza</h5>
+          <p class="card-text">Desenvolvedora Full Stack</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="contato" class="my-5">
+  <h2 class="section-title text-center">Contato</h2>
+  <form class="mx-auto" style="max-width: 600px;">
+    <div class="form-group">
+      <label for="nome">Nome</label>
+      <input type="text" class="form-control" id="nome" placeholder="Seu nome">
+    </div>
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input type="email" class="form-control" id="email" placeholder="seu@email.com">
+    </div>
+    <div class="form-group">
+      <label for="mensagem">Mensagem</label>
+      <textarea class="form-control" id="mensagem" rows="5" placeholder="Escreva sua mensagem..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+  </form>
+</section>
+
+
+<div id="chatbot-icon" title="Abrir chatbot">💬</div>
+<div id="chatbot-container" aria-label="Chatbot">
+  <div id="chatbot-header">
+    Chatbot
+    <button id="chatbot-close" aria-label="Fechar chatbot">&times;</button>
+  </div>
+  <div id="chat"></div>
+  <div id="chat-footer">
+    <input id="chat-input" type="text" placeholder="Digite sua mensagem..." autocomplete="off" aria-label="Mensagem" />
+    <button id="chat-send">Enviar</button>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Projeto Inteligência Artificial | Desenvolvido com 💗 por Maria Kumar.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Atualiza o modal com título e texto ao abrir
+  $('.gallery-card').on('click', function () {
+    const title = $(this).data('title');
+    const text = $(this).data('text');
+    $('#modalIATitulo').text(title);
+    $('#modalIATexto').text(text);
+  });
+
+  // Gráfico Chart.js
+  const ctx = document.getElementById('graficoIA').getContext('2d');
+  const graficoIA = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+      datasets: [{
+        label: 'Investimento em IA (bilhões US$)',
+        data: [10, 15, 20, 30, 45, 60, 90, 130, 180, 240],
+        backgroundColor: 'rgba(76, 161, 175, 0.2)',
+        borderColor: '#4ca1af',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointBackgroundColor: '#2c3e50'
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return '$' + value + 'B';
+            }
+          },
+          title: {
+            display: true,
+            text: 'Bilhões de dólares'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Ano'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#2c3e50',
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Chatbot funcionalidade
+  const chatbotIcon = document.getElementById('chatbot-icon');
+  const chatbotContainer = document.getElementById('chatbot-container');
+  const chatbotClose = document.getElementById('chatbot-close');
+  const chat = document.getElementById('chat');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+
+  chatbotIcon.addEventListener('click', () => {
+    chatbotContainer.style.display = 'flex';
+    chatbotIcon.style.display = 'none';
+    chatInput.focus();
+  });
+
+  chatbotClose.addEventListener('click', () => {
+    chatbotContainer.style.display = 'none';
+    chatbotIcon.style.display = 'flex';
+  });
+
+  function addMessage(text, fromUser = true) {
+    const msg = document.createElement('div');
+    msg.textContent = text;
+    msg.classList.add('message');
+    if (fromUser) {
+      msg.classList.add('user');
+    } else {
+      msg.classList.add('bot');
+    }
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function botResponse(input) {
+    input = input.toLowerCase();
+    if (input.includes('oi') || input.includes('olá')) {
+      return 'Olá! Como posso ajudar você com Inteligência Artificial?';
+    }
+    if (input.includes('ia') || input.includes('inteligência artificial')) {
+      return 'Inteligência Artificial é a simulação de processos inteligentes por máquinas.';
+    }
+    if (input.includes('blockchain')) {
+      return 'Blockchain é uma tecnologia para registros seguros e descentralizados.';
+    }
+    return 'Desculpe, ainda estou aprendendo. Pode reformular?';
+  }
+
+  chatSend.addEventListener('click', () => {
+    const inputText = chatInput.value.trim();
+    if (inputText === '') return;
+    addMessage(inputText, true);
+    chatInput.value = '';
+    setTimeout(() => {
+      addMessage(botResponse(inputText), false);
+    }, 600);
+  });
+
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      chatSend.click();
+    }
+  });
+</script>
+
+</body>
+</html>
